@@ -20,9 +20,9 @@ The HISCO census data was enriched with HISCO codes from OccCANINE with a thresh
 | `Stilling_i_husstanden` | Position or status within the household from Link Lives (sometimes this contains occupational info) |
 | `occ1`                  | Merge of `Erhverv` and `Stilling_i_husstanden`                                                      |
 | `inputs`                | Occupational description, which was fed to OccCANINE                                                |
-| `hisco_[x]`             | First HISCO (Historical International Standard Classification of Occupations) code                  |
-| `prob_[x]`              | Probability or confidence level of `hisco_1` being correct                                          |
-| `desc_[x]`              | Description or additional information about `hisco_1`                                               |
+| `hisco_[x]`             | [x]th HISCO (Historical International Standard Classification of Occupations) code                  |
+| `prob_[x]`              | Model confidence level of `hisco_[x]` being correct                                                 |
+| `desc_[x]`              | Description of `hisco_[x]`                                                                          |
 
 
 # Updates
