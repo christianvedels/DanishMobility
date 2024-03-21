@@ -31,7 +31,7 @@ initials (date)
 - CV (2024-03-05): Made repo
 
 ## References
-Dahl, C. M., Johansen, T. S. D., Vedel, C. (2024). Breaking the HISCO barrier: Automatic occupational standardization with OccCANINE. _arXiv preprint_ arXiv:2402.13604.
+Dahl, C. M., Johansen, T. S. D., Vedel, C. (2024). Breaking the HISCO barrier: Automatic occupational standardization with OccCANINE. _arXiv preprint_ arXiv:2402.13604. https://arxiv.org/abs/2402.13604
 
 Robinson, O., Mathiesen, N. R., Thomsen, A. R., & Revuelta-Eugercios, B. (2022, Jun). Link-lives
 guide: version 1. Online. (Available at: https://www.rigsarkivet.dk/udforsk/link-lives
