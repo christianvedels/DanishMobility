@@ -1,9 +1,7 @@
 # DanishMobility
 
 INSERT DESCRIPTION
-HERE IS A COMMIT
 
-HERE IS ANOTHER COMMIT
 
 [**Slides**](https://raw.githack.com/christianvedels/DanishMobility/main/Project_dissemination/DanishMobility_slides/Slides.html)
 
