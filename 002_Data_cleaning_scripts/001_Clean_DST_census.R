@@ -5,7 +5,7 @@ library(readr)
 library(tidyverse)
 library(data.table)
 
-base_path_census <- "/Users/mhkr/Library/CloudStorage/Dropbox/Data/Link_lives/standardized_sources"
+base_path_census <- "../Data/Link_lives/standardized_sources"
 
 csv_files <- list.files(path = base_path_census, pattern = "\\.csv$", full.names = T, recursive = T)
 
