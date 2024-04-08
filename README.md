@@ -25,9 +25,15 @@ The HISCO census data was enriched with HISCO codes from OccCANINE with a thresh
 | `prob_[x]`              | Model confidence level of `hisco_[x]` being correct                                                 |
 | `desc_[x]`              | Description of `hisco_[x]`                                                                          |
 
+### C. Cemetery data
+The cemetery data is obtained from https://dk-gravsten.dk/news.php. This database contains information about individuals buried in approx. 1000 different cemeteries around Denmark.
+
+### D. DST data
+The data from Statistics Denmark contains the surnames of all individuals residing (?) in Denmark from 2002 to 2023 along with a count variable.
 
 # Updates
 initials (date)
+- MHK (2024-04-08): Added cemetery + DST data, and uploaded codes to clean various data sources
 - CV (2024-03-21): Added Link lives data + HISCO codes + Documentation
 - CV (2024-03-05): Made repo
 
@@ -37,5 +43,3 @@ Dahl, C. M., Johansen, T. S. D., Vedel, C. (2024). Breaking the HISCO barrier: A
 Robinson, O., Mathiesen, N. R., Thomsen, A. R., & Revuelta-Eugercios, B. (2022, Jun). Link-lives
 guide: version 1. Online. (Available at: https://www.rigsarkivet.dk/udforsk/link-lives
 -data/)
-
-
