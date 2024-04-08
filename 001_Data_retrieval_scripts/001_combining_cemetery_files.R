@@ -1,6 +1,6 @@
 # Combining cemetry files
 # Date updated:   2024-04-08
-# Auhtor:         MHK
+# Author:         MHK
 #
 # Purpose:        WHAT IS THE PURPOSE?
 
