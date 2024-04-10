@@ -1,15 +1,10 @@
-<<<<<<< Updated upstream
-rm(list=ls())
-
-=======
 # Combining cemetery files
-# Date updated:   2024-04-08
+# Date updated:   2024-04-10
 # Author:         MHK
 #
 # Purpose:        This script combines individual cemetery data files (which was necessary in order to complete data extraction from Dk-gravsten) into one
 
 # ==== Libraries ====
->>>>>>> Stashed changes
 library(tidyverse)
 
 cemetery = read.csv("../Data/population/cemetery/cemetery.csv")
@@ -25,6 +20,8 @@ cemetery = bind_rows(cemetery, cemetery_1953, cemetery_1977, cemetery_1992, ceme
   distinct()
 
 remove(cemetery_1953, cemetery_1977, cemetery_1992, cemetery_2004, cemetery_special, cemetery_special1)
+
+# ==== Data cleaning ====
 
 # creating year indicator
 start_position <- nchar(cemetery$born) - 3
@@ -46,5 +43,7 @@ cemetery = cemetery %>%
   left_join(avg_birth_years, by = "year_of_death") %>% 
   mutate(Year_clean = ifelse(is.na(Year_clean) | Year_clean == 0, avg_year_of_birth_round, Year_clean)) %>% 
   select(!c(avg_year_of_birth, avg_year_of_birth_round))
+
+# ==== Save results ====
 
 write.csv(cemetery, "../Data/population/cemetery/cemetery_combined.csv", row.names = F)

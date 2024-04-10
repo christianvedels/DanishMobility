@@ -1,12 +1,8 @@
-<<<<<<< Updated upstream
-rm(list=ls())
-=======
 # Cleaning of manor estate owner data
 # Date updated:   2024-04-10
 # Author:         MHK
 #
 # Purpose:        This script cleans the manor estate owner data
->>>>>>> Stashed changes
 
 # ==== Libraries ====
 library(tidyverse)

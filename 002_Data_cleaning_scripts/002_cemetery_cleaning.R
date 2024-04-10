@@ -1,12 +1,8 @@
-<<<<<<< Updated upstream
-rm(list=ls())
-=======
 # Cleaning of surnames in cemetery data
 # Date updated:   2024-04-10
 # Author:         MHK
 #
 # Purpose:        This script cleans the cemetery data
->>>>>>> Stashed changes
 
 # ==== Libraries ====
 library(tidyverse)

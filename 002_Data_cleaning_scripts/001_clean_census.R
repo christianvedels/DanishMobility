@@ -1,12 +1,8 @@
-<<<<<<< Updated upstream
-rm(list=ls())
-=======
 # Cleaning of surnames of census data
 # Date updated:   2024-04-10
 # Author:         MHK
 #
 # Purpose:        This script cleans the census data, as well as creates a data frame counting surnames by year
->>>>>>> Stashed changes
 
 # ==== Libraries ====
 library(purrr)
