@@ -1,10 +1,20 @@
+<<<<<<< Updated upstream
 rm(list=ls())
+=======
+# Cleaning of manor estate owner data
+# Date updated:   2024-04-10
+# Author:         MHK
+#
+# Purpose:        This script cleans the manor estate owner data
+>>>>>>> Stashed changes
 
+# ==== Libraries ====
 library(tidyverse)
 library(stringr)
 library(readxl)
 library(openxlsx)
 
+# ==== Load data ====
 owners = read.csv("../Data/elite/manor_owners.csv")
 
 # removing entities that we are not interested in (e.g. cities, dukes, companies, etc.). Ultimately, we only want individuals whose surname we can observe
@@ -241,10 +251,7 @@ owners = owners %>% filter(value != "Kronen" &
          value = str_remove(value, " i Roskilde"),
          value = str_remove(value, " m.fl."))
 
-owners$personID = seq(1:nrow(owners))
-
 # removing part of name where it states the married name (which is saved in marriageSurname)
-
 owners = owners %>% mutate(value = str_split(value, "\\, gift", simplify = T)[,1],
                            value = str_split(value, "\\,gift", simplify = T)[,1],
                            value = str_split(value, "\\.gift", simplify = T)[,1],
@@ -253,7 +260,6 @@ owners = owners %>% mutate(value = str_split(value, "\\, gift", simplify = T)[,1
                            value = str_split(value, "\\, g.", simplify = T)[,1])
 
 # function that splits a string by either " og ", "," or "/"
-
 split_based_on_content <- function(input_string) {
   if (grepl(",|/||& og ", input_string)) {
     return(unlist(strsplit(input_string, ",|/|&| og ")))
@@ -262,17 +268,17 @@ split_based_on_content <- function(input_string) {
   }
 }
 
-split_strings <- lapply(owners$value, split_based_on_content)
+split_strings <- lapply(owners$value, split_based_on_content) # apply split_based_on_content to name variable
 
-max_parts <- max(sapply(split_strings, length))
+max_parts <- max(sapply(split_strings, length)) # identify the maximum number of owners
 
-split_strings <- lapply(split_strings, function(x) c(x, rep(NA, max_parts - length(x))))
+split_strings <- lapply(split_strings, function(x) c(x, rep(NA, max_parts - length(x)))) # split string according to how many owners there are
 
-df <- as.data.frame(do.call(rbind, split_strings))
+df <- as.data.frame(do.call(rbind, split_strings)) # write to data frame
 
-colnames(df) <- c("owner1", "owner2", "owner3", "owner4")
+colnames(df) <- c("owner1", "owner2", "owner3", "owner4") # rename variables from V1 to owner1, etc.
 
-owners = cbind(owners, df)
+owners = cbind(owners, df) # attach owners1-owners4 to owners data frame
 
 remove(df, split_strings, split_based_on_content, max_parts) # removing temporary items
 
@@ -285,33 +291,29 @@ owners = owners %>% mutate(owner1 = trimws(owner1),
                            surname3 = word(owner3, -1),
                            surname4 = word(owner4, -1)) # takes the string after the last space in the name variable
 
-
-owners = owners %>% mutate(yearTo = ifelse(str_detect(owners$years, "-") == F, yearFrom, yearTo))
-
-owners = owners %>% mutate(yearFrom = str_remove(owners$yearFrom, "ø"),
+# cleaning yearTo and yearFrom variables
+owners = owners %>% mutate(yearTo = ifelse(str_detect(owners$years, "-") == F, yearFrom, yearTo),
+                           yearFrom = str_remove(owners$yearFrom, "ø"),
                            yearTo = str_remove(owners$yearTo, "-"),
-                           yearTo = str_remove(owners$yearTo, "ø"))
-
-owners$yearFrom = trimws(owners$yearFrom)
-owners$yearTo = trimws(owners$yearTo)
+                           yearTo = str_remove(owners$yearTo, "ø"),
+                           yearFrom = trimws(owners$yearFrom),
+                           yearTo = trimws(owners$yearTo),
+                           yearFrom = str_replace_all(yearFrom, "-", ""),
+                           yearFrom = str_split_fixed(yearFrom, ",", 2)[,1],
+                           yearFrom = str_trim(yearFrom),
+                           yearTo = str_replace_all(yearTo, "\\´", ""),
+                           yearTo = str_replace_all(yearTo, "-", ""),
+                           yearTo = str_split_fixed(yearTo, ",", 2)[,1],
+                           yearTo = str_trim(yearTo),
+                           yearFrom = as.numeric(yearFrom),
+                           yearTo = as.numeric(yearTo))
 
 owners = owners %>% filter(surname1 != "I" & surname1 != "II" & surname1 != "III" & surname1 != "IV" & surname1 != "V" & surname1 != "VI" & surname1 != "VII" & surname1 != "VIII" & surname1 != "IX" & surname1 != "X")
 
 owners = owners %>% mutate(surname1 = ifelse(surname1 == "EriksenLøvenbalk", "Løvenbalk", surname1))
 
-owners = owners %>% mutate(yearFrom = str_replace_all(yearFrom, "-", ""),
-                         yearFrom = str_split_fixed(yearFrom, ",", 2)[,1],
-                         yearFrom = str_trim(yearFrom),
-                         yearTo = str_replace_all(yearTo, "\\´", ""),
-                         yearTo = str_replace_all(yearTo, "-", ""),
-                         yearTo = str_split_fixed(yearTo, ",", 2)[,1],
-                         yearTo = str_trim(yearTo))
+owners[owners==""] = NA # replace white space by NAs
 
-owners[owners==""] = NA
-
-owners = owners %>% mutate(yearFrom = as.numeric(yearFrom),
-                           yearTo = as.numeric(yearTo))
-
-#write.xlsx(owners, "Documents/Research/Surnames/data/manor_owners_cleaned.xlsx", rowNames = F)
+# ==== Save results ====
 write.csv(owners, "../Data/elite/manor_owners_cleaned.csv", row.names = F)
 
