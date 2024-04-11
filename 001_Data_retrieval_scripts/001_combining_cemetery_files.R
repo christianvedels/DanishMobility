@@ -1,9 +1,8 @@
-# Combining cemetry files
-# Date updated:   2024-04-08
-# Auhtor:         MHK
+# Combining cemetery files
+# Date updated:   2024-04-10
+# Author:         MHK
 #
-# Purpose:        WHAT IS THE PURPOSE?
-
+# Purpose:        This script combines individual cemetery data files (which was necessary in order to complete data extraction from Dk-gravsten) into one
 
 # ==== Libraries ====
 library(tidyverse)
@@ -24,13 +23,30 @@ cemetery = bind_rows(cemetery, cemetery_1953, cemetery_1977, cemetery_1992, ceme
 
 remove(cemetery_1953, cemetery_1977, cemetery_1992, cemetery_2004, cemetery_special, cemetery_special1)
 
+# ==== Data cleaning ====
+
 # creating year indicator
-start_position <- nchar(cemetery$died) - 3
+start_position <- nchar(cemetery$born) - 3
 
-# Extract the last four digits from death year
-cemetery$Year_clean <- substr(cemetery$died, start_position, nchar(cemetery$died))
+# Extract the last four digits from birth and death year
+cemetery = cemetery %>% mutate(Year_clean = substr(born, start_position, nchar(born)),
+                               Year_clean = as.numeric(Year_clean),
+                               year_of_death = substr(died, start_position, nchar(died)),
+                               year_of_death = as.numeric(year_of_death))
 
-cemetery$Year_clean = as.numeric(cemetery$Year_clean)
+# imputing year of birth for individuals for whom year of birth currently is unknown
+avg_birth_years <- cemetery %>% 
+  filter((!is.na(Year_clean) & Year_clean != 0) & (!is.na(year_of_death) & year_of_death != 0)) %>% 
+  group_by(year_of_death) %>% 
+  summarize(avg_year_of_birth = mean(Year_clean, na.rm = T)) %>% 
+  mutate(avg_year_of_birth_round = round(avg_year_of_birth))
+
+cemetery = cemetery %>% 
+  left_join(avg_birth_years, by = "year_of_death") %>% 
+  mutate(Year_clean = ifelse(is.na(Year_clean) | Year_clean == 0, avg_year_of_birth_round, Year_clean)) %>% 
+  select(!c(avg_year_of_birth, avg_year_of_birth_round))
+
+# ==== Save results ====
 
 # ==== Save results ====
 write.csv(cemetery, "../Data/population/cemetery/cemetery_combined.csv", row.names = F)
