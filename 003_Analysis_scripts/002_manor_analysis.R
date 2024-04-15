@@ -1,5 +1,5 @@
 # Preliminary analysis using owners of manor estates as elite occupation
-# Date updated:   2024-04-10
+# Date updated:   2024-04-15
 # Author:         MHK
 #
 # Purpose:        To produce preliminary results depicting how the relative representation of surnames have changed over time.
@@ -14,8 +14,9 @@ library(fixest)
 census = read.csv("../Data/population/census_count.csv")
 cemetery = read.csv("../Data/population/cemetery/cemetery_count.csv")
 dst = read.csv("../Data/population/pop2002_2023/dst_count.csv")
-nobility = read.csv("/Users/mhkr/Library/CloudStorage/Dropbox/DanishMobility/Data/elite/nobility.csv")
+nobility = read.csv("../Data/elite/nobility.csv")
 manor = read.csv("../Data/elite/manor_owners_cleaned.csv")
+census_pre1820_ses = read.csv("../Data/population/census_pre1820_count_ses.csv")
 
 # creating a single data frame which contains distribution of surnames
 pop_dist = bind_rows(census, # from 1787 to 1901: census dictates the distribution
@@ -187,4 +188,68 @@ pop_dist_manor_type %>%
                     name = "Nobility") +
   scale_y_continuous(breaks = seq(1, 16, 3))
   
+
+# ==== Analysis by avg. HISCAM score pre-1820 ====
+
+pop_dist_ses = pop_dist %>% 
+  mutate(period = cut(year, breaks = breaks, labels = labels, include.lowest = TRUE)) %>% 
+  right_join(census_pre1820_ses %>% 
+              filter(period == "1787-1820") %>% 
+              select(surname, group), by = "surname") %>% 
+  group_by(period, group) %>% 
+  summarize(n = n()) %>% 
+  ungroup() %>% 
+  group_by(period) %>% 
+  mutate(frac = n/sum(n)) %>% 
+  ungroup()
+
+manor = read.csv("../Data/elite/manor_owners_cleaned.csv")
+
+manor = manor %>% pivot_longer(cols = starts_with("surname"),  # Selects all columns that start with 'surname'
+                               names_to = "surname_variable",  # New column for the names of the original columns
+                               values_to = "surname") %>% 
+  filter(!is.na(surname)) %>% 
+  mutate(year = ifelse(is.na(yearFrom), yearTo, yearFrom),
+         period = cut(year, breaks = breaks, labels = labels, include.lowest = T),
+         surname = tolower(surname)) %>% 
+  filter(!is.na(period))
+
+# merge pre-1820 avg. HISCAM score into manor df
+manor = manor %>% 
+  right_join(census_pre1820_ses %>% filter(period == "1787-1820") %>% select(surname, group), by = "surname") %>% 
+  group_by(period, group) %>% 
+  summarize(n = n()) %>% 
+  ungroup() %>% 
+  group_by(period) %>% 
+  mutate(frac = n/sum(n))
+
+# merge manor df into pop. dist
+pop_dist_ses = pop_dist_ses %>% 
+  filter(period != "1787-1820") %>% 
+  left_join(manor, by = c("period", "group"), suffix = c("", "_elite")) %>% 
+  mutate(rr = frac_elite / frac)
+
+pop_dist_ses = expand.grid(
+  group = unique(pop_dist_ses$group),
+  period = sort(unique(pop_dist_ses$period))
+) %>%
+  left_join(pop_dist_ses, by = c("group", "period")) %>% 
+  group_by(group) %>% 
+  mutate(rr_lag = lag(rr)) %>% 
+  ungroup()
+
+# plot by group
+ggplot(pop_dist_ses %>% filter(!is.na(group) & !is.na(rr)), aes(x = period, y = rr, group = group, color = as.factor(group))) +
+  geom_line() +
+  geom_point() +
+  theme_linedraw() +
+  theme(legend.position = "bottom") +
+  labs(x = "Period",
+       y = "Relative representation") +
+  scale_color_brewer(palette = "Paired",
+                     name = "Pre-1820 avg. HISCAM")
+
+summary(lm(log(rr) ~ log(rr_lag), data = pop_dist_ses))
+
+
 
