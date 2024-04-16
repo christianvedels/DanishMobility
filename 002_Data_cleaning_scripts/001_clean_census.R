@@ -10,9 +10,11 @@ library(purrr)
 library(readr)
 library(tidyverse)
 library(data.table)
+library(hisco)
 
 # ==== Load data ====
 base_path_census <- "../Data/Link_lives/standardized_sources"
+hisco_codes = read.csv("../Data/Link_lives/Census_HISCO_codes_clean.csv")
 
 csv_files <- list.files(path = base_path_census, pattern = "\\.csv$", full.names = T, recursive = T)
 
@@ -58,6 +60,21 @@ census$surname <- sapply(census$surname, function(x) {
 
 census = census %>% mutate(surname = str_replace_all(surname, "\\.", "")) # removes all periods from the surname variable
 
+# cleaning HISCO codes df
+hisco_codes = hisco_codes %>% 
+  mutate(year = substr(Kilde, nchar(Kilde) - 3, nchar(Kilde)),
+         year = as.numeric(year))
+
+# merging HISCO codes into census data
+census = census %>% left_join(hisco_codes, by = c("event_year" = "year",
+                                                  "pa_id" = "pa_id"))
+
+remove(hisco_codes)
+
+# computing HISCAM score and attaching it to census df
+census$ses = hisco_to_ses(census$hisco_1, ses = "hiscam_u1")
+
+# creating count
 surnames_census = census %>% 
   select(name_cl, surname, event_year) %>% 
   group_by(event_year, surname) %>% 
@@ -67,5 +84,5 @@ surnames_census = census %>%
 colnames(surnames_census) = c("year", "surname", "n")
 
 # ==== Save results ====
-
+write.csv(census, "../Data/population/census.csv", row.names = F)
 write.csv(surnames_census, "../Data/population/census_count.csv", row.names = F)

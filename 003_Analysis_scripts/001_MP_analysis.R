@@ -1,5 +1,5 @@
 # Preliminary analysis using members of parliament as elite occupation
-# Date updated:   2024-04-10
+# Date updated:   2024-04-15
 # Author:         MHK
 #
 # Purpose:        To produce preliminary results depicting how the relative representation of surnames have changed over time
@@ -19,6 +19,7 @@ dst = read.csv("../Data/population/pop2002_2023/dst_count.csv")
 
 # for identifying elite surnames
 nobility = read.csv("../Data/elite/nobility.csv")
+census_pre1820_ses = read.csv("../Data/population/census_pre1820_count_ses.csv")
 
 # for identifying distribution of surnames in elite occupation
 dld = readRDS("../Data/elite/DLD/member1849-2022.rds")
@@ -43,6 +44,8 @@ pop_dist_surname <- pop_dist %>%
   mutate(period = cut(year, breaks = breaks, labels = labels, include.lowest = TRUE)) %>%
   group_by(surname, period) %>%
   summarize(n = sum(n))
+
+# ==== Surname-level analysis ====
 
 pop_dist_surname = pop_dist_surname %>% 
   group_by(period) %>% 
@@ -107,7 +110,7 @@ ggplot(pop_dist_dld_s, aes(x = period, y = rr, group = surname)) +
 
 summary(feols(log(rr) ~ log(lag_rr) | surname, data = pop_dist_dld_s))
 
-# try to collapse by nobility status instead
+# ==== Analysis by nobility status ====
 pop_dist_nob = pop_dist %>%
   mutate(period = cut(year, breaks = breaks, labels = labels, include.lowest = TRUE)) %>% 
   group_by() %>% 
@@ -171,3 +174,58 @@ pop_dist_dld_nob = pop_dist_dld_nob %>% mutate(rr_lag = lag(rr))
 # estimate regression of interest
 summary(lm(log(rr) ~ log(rr_lag), data = pop_dist_dld_nob %>% filter(nobility==1)))
 
+
+# ==== Analysis by avg. HISCAM score pre-1820 ====
+
+pop_dist_ses = pop_dist %>% 
+  mutate(period = cut(year, breaks = breaks, labels = labels, include.lowest = TRUE)) %>% 
+  right_join(census_pre1820_ses %>% 
+               filter(period == "1787-1820") %>% 
+               select(surname, group), by = "surname") %>% 
+  group_by(period, group) %>% 
+  summarize(n = n()) %>% 
+  ungroup() %>% 
+  group_by(period) %>% 
+  mutate(frac = n/sum(n)) %>% 
+  ungroup()
+
+dld_ses = dld %>% 
+  mutate(lastName = str_trim(lastName),
+         period = cut(bYear, breaks = breaks, labels = labels, include.lowest = T))
+
+# merge pre-1820 avg. HISCAM score into dld df
+dld_ses = dld_ses %>% 
+  right_join(census_pre1820_ses %>% filter(period == "1787-1820") %>% select(surname, group), by = c("lastName" = "surname")) %>% 
+  group_by(period, group) %>% 
+  summarize(n = n()) %>% 
+  ungroup() %>% 
+  group_by(period) %>% 
+  mutate(frac = n/sum(n))
+
+# merge dld into pop. dist
+pop_dist_ses = pop_dist_ses %>% 
+  filter(period != "1787-1820") %>% 
+  left_join(dld_ses, by = c("period", "group"), suffix = c("", "_elite")) %>% 
+  mutate(rr = frac_elite / frac)
+
+pop_dist_ses = expand.grid(
+  group = unique(pop_dist_ses$group),
+  period = sort(unique(pop_dist_ses$period))
+) %>%
+  left_join(pop_dist_ses, by = c("group", "period")) %>% 
+  group_by(group) %>% 
+  mutate(rr_lag = lag(rr)) %>% 
+  ungroup() %>% 
+  filter(period != "2001-2023") # only 1 observation in this period
+
+ggplot(pop_dist_ses %>% filter(!is.na(group) & !is.na(rr)), aes(x = period, y = rr, group = group, color = as.factor(group))) +
+  geom_line() +
+  geom_point() +
+  theme_linedraw() +
+  theme(legend.position = "bottom") +
+  labs(x = "Period",
+       y = "Relative representation") +
+  scale_color_brewer(palette = "Paired",
+                     name = "Pre-1820 avg. HISCAM")
+
+summary(lm(log(rr) ~ log(rr_lag), data = pop_dist_ses))
