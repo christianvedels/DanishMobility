@@ -1,6 +1,6 @@
 
 # Cleaning of surnames of census data
-# Date updated:   2024-04-10
+# Date updated:   2024-04-16
 # Author:         MHK
 #
 # Purpose:        This script cleans the census data, as well as creates a data frame counting surnames by year
@@ -76,8 +76,8 @@ census$ses = hisco_to_ses(census$hisco_1, ses = "hiscam_u1")
 
 # creating count
 surnames_census = census %>% 
-  select(name_cl, surname, event_year) %>% 
-  group_by(event_year, surname) %>% 
+  select(name_cl, surname, birth_year) %>% 
+  group_by(birth_year, surname) %>% 
   summarize(n = n()) %>% 
   ungroup()
 
