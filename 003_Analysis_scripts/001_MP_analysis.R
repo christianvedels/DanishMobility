@@ -36,8 +36,8 @@ pop_dist = pop_dist %>% filter(year != 1885) # remove data from 1885 census as i
 dld = dld %>% mutate(lastName = tolower(lastName))
 
 # periods (aim for 30-year intervals as these represent a generation):
-breaks <- c(1787, 1820, 1850, 1880, 1910, 1940, 1970, 2000, 2023)
-labels <- c("1787-1820", "1821-1850", "1851-1880", "1881-1910", "1911-1940", "1941-1970", "1971-2000", "2001-2023")
+breaks <- c(1700, 1730, 1760, 1790, 1820, 1850, 1880, 1910, 1940, 1970, 2000, 2023)
+labels <- c("1700-1730", "1731-1760", "1761-1790", "1791-1820", "1821-1850", "1851-1880", "1881-1910", "1911-1940", "1941-1970", "1971-2000", "2001-2023")
 
 # Categorize data into periods
 pop_dist_surname <- pop_dist %>%
@@ -156,17 +156,23 @@ pop_dist_dld_nob = pop_dist_nob %>% left_join(dld_nob, by = c("period" = "period
 pop_dist_dld_nob = pop_dist_dld_nob %>% mutate(rr = frac_elite/frac)
 
 # plot relative representation over time
-ggplot(pop_dist_dld_nob, aes(x = period, y = rr, group = nobility, color = as.factor(nobility))) +
+mp_rr_by_nobility = pop_dist_dld_nob %>% 
+  filter(!is.na(period) & !is.na(rr) & nobility == 1) %>% 
+  ggplot(aes(x = period, y = rr, group = nobility, color = as.factor(nobility))) +
   geom_line() +
   geom_point() +
   theme_linedraw() +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom",
+        panel.grid.major.x = element_blank()) +
   scale_color_manual(values = c("1" = "blue", "0" = "red"),
                      name = "Nobility",
                      labels = c("1" = "Yes", "0" = "No")) +
-  scale_y_continuous(breaks = seq(1, 10, 3)) +
   labs(x = "Period",
-       y = "Relative representation")
+       y = "Relative representation") +
+  scale_y_log10() + 
+  geom_hline(yintercept = 1, linetype = "dotted")
+
+ggsave(mp_rr_by_nobility, file = "../DanishMobility/Project_dissemination/DanishMobility_slides/figures/mp_rr_by_nobility.png")
 
 # create lag of relative representation
 pop_dist_dld_nob = pop_dist_dld_nob %>% mutate(rr_lag = lag(rr))
@@ -183,7 +189,7 @@ pop_dist_ses = pop_dist %>%
                filter(period == "1787-1820") %>% 
                select(surname, group), by = "surname") %>% 
   group_by(period, group) %>% 
-  summarize(n = n()) %>% 
+  summarize(n = sum(n)) %>% 
   ungroup() %>% 
   group_by(period) %>% 
   mutate(frac = n/sum(n)) %>% 
@@ -218,14 +224,19 @@ pop_dist_ses = expand.grid(
   ungroup() %>% 
   filter(period != "2001-2023") # only 1 observation in this period
 
-ggplot(pop_dist_ses %>% filter(!is.na(group) & !is.na(rr)), aes(x = period, y = rr, group = group, color = as.factor(group))) +
+mp_rr_hiscam = ggplot(pop_dist_ses %>% filter(!is.na(group) & !is.na(rr)), aes(x = period, y = rr, group = group, color = as.factor(group))) +
   geom_line() +
   geom_point() +
   theme_linedraw() +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom",
+        panel.grid.major.x = element_blank()) +
   labs(x = "Period",
        y = "Relative representation") +
   scale_color_brewer(palette = "Paired",
-                     name = "Pre-1820 avg. HISCAM")
+                     name = "Pre-1820 avg. HISCAM") +
+  scale_y_log10() + 
+  geom_hline(yintercept = 1, linetype = "dotted")
 
 summary(lm(log(rr) ~ log(rr_lag), data = pop_dist_ses))
+
+ggsave(mp_rr_hiscam, file = "../DanishMobility/Project_dissemination/DanishMobility_slides/figures/mp_rr_by_hiscam.png")
