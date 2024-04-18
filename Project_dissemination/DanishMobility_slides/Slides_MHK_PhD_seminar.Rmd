@@ -303,7 +303,7 @@ List of 10 most frequent surnames in different HISCAM groups
 
 # Preliminary findings: owners of manor estates
 
-```{r, out.width="70%", echo = F, fig.align="center"}
+```{r, out.width="80%", echo = F, fig.align="center"}
 knitr::include_graphics("figures/manor_rr_by_hiscam.png")
 ```
 
@@ -311,7 +311,7 @@ knitr::include_graphics("figures/manor_rr_by_hiscam.png")
 
 # Preliminary findings: owners of manor estates
 
-```{r, out.width="70%", echo = F, fig.align="center"}
+```{r, out.width="80%", echo = F, fig.align="center"}
 knitr::include_graphics("figures/manor_rr_by_nobility.png")
 ```
 
@@ -319,7 +319,7 @@ knitr::include_graphics("figures/manor_rr_by_nobility.png")
 
 # Preliminary findings: members of parliament
 
-```{r, out.width="70%", echo = F, fig.align="center"}
+```{r, out.width="80%", echo = F, fig.align="center"}
 knitr::include_graphics("figures/mp_rr_by_hiscam.png")
 ```
 
@@ -327,7 +327,7 @@ knitr::include_graphics("figures/mp_rr_by_hiscam.png")
 
 # Preliminary findings: members of parliament
 
-```{r, out.width="70%", echo = F, fig.align="center"}
+```{r, out.width="80%", echo = F, fig.align="center"}
 knitr::include_graphics("figures/mp_rr_by_nobility.png")
 ```
 
@@ -336,7 +336,7 @@ knitr::include_graphics("figures/mp_rr_by_nobility.png")
 
 # Preliminary findings: PhD graduates (2011-2024)
 
-```{r, out.width="70%", echo = F, fig.align="center"}
+```{r, out.width="80%", echo = F, fig.align="center"}
 knitr::include_graphics("figures/phd_rr_by_hiscam.png")
 ```
 
@@ -344,7 +344,7 @@ knitr::include_graphics("figures/phd_rr_by_hiscam.png")
 
 # Preliminary findings: PhD graduates (2011-2024)
 
-```{r, out.width="70%", echo = F, fig.align="center"}
+```{r, out.width="80%", echo = F, fig.align="center"}
 knitr::include_graphics("figures/phd_rr_by_area.png")
 ```
 
