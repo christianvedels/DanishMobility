@@ -247,6 +247,31 @@ pop_dist_ses = expand.grid(
   mutate(rr_lag = lag(rr)) %>% 
   ungroup()
 
+pop_dist_ses_80_90 = pop_dist_ses %>% 
+  filter(group == "60-79") %>% 
+  mutate(end.period = as.numeric(str_sub(period, start = -4)),
+         elite_cutoff = 0.01, # assume that MPs constitute the top 1% of the social status distribution
+         z.score.cutoff = qnorm(1-elite_cutoff),
+         elite_share = rr*elite_cutoff,
+         z.score.elite = qnorm(1-elite_share),
+         elite.mean = z.score.cutoff - z.score.elite,
+         elite.mean.lag = lag(elite.mean),
+         implied.b = (elite.mean/elite.mean.lag))
+
+summary(lm(elite.mean ~ as.numeric(period), data = pop_dist_ses_80_90))$coefficients[1,1] + as.numeric(pop_dist_ses_80_90$period)*summary(lm(elite.mean ~ as.numeric(period), data = pop_dist_ses_80_90))$coefficients[2,1]
+
+mean(pop_dist_ses_80_90$implied.b, na.rm = T)
+
+pop_dist_ses_80_90 %>% 
+  ggplot(aes(x = as.numeric(period), y = elite.mean)) + 
+  geom_line() +
+  geom_point() +
+  geom_line(aes(x = as.numeric(period), y = summary(lm(elite.mean ~ as.numeric(period), data = pop_dist_ses_80_90))$coefficients[1,1] + as.numeric(period)*summary(lm(elite.mean ~ as.numeric(period), data = pop_dist_ses_80_90))$coefficients[2,1]), linetype = "dotted") + 
+  theme_linedraw() +
+  labs(x = "Generation", y = "Elite Surname Mean") +
+  scale_x_continuous(breaks = seq(1,10,2))
+
+
 # plot by group
 manor_rr_hiscam = ggplot(pop_dist_ses %>% filter(!is.na(group) & !is.na(rr)), aes(x = period, y = rr, group = group, color = as.factor(group))) +
   geom_line() +

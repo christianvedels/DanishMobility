@@ -98,7 +98,7 @@ xaringanExtra::use_progress_bar(color = "#808080", location = "top")
 
 
 # Measuring Long-Run Social Mobility in Denmark using Surnames (1700-2024)
-## Gregory Clark, Martin Hørlyk Kristensen, and Christian Vedel
+## Martin Hørlyk Kristensen and Christian Vedel
 ## University of Southern Denmark, HEDG
 ### PhD Status Seminar, `r Sys.Date()`
 ---
@@ -125,7 +125,7 @@ The tradition of using primary patronyms was kept alive by peasants
 <br>
 
 1828: Free choice to decide on a surname for newborn children
-* A majority of peasants stuck with a primary patronym
+* A majority of peasants kept primary patronym
 
 <br>
 
